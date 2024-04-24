@@ -1,4 +1,6 @@
+import { useState } from "react";
 import {
+  Button,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -7,7 +9,6 @@ import {
   View,
 } from "react-native";
 import TasksList from "@/components/TasksList";
-import { useState } from "react";
 import database from "../db";
 import Task from "@/model/Task";
 
@@ -28,6 +29,18 @@ export default function HomeScreen() {
     setTask("");
   };
 
+  const onTest = async () => {
+    const tasksCollection = database.get<Task>("tasks");
+
+    await database.write(async () => {
+      const tasks = await tasksCollection.query().fetch();
+      const task = tasks[0];
+      task.update((updatedTask) => {
+        updatedTask.task = "Tarea actualiza";
+      });
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TasksList />
@@ -41,6 +54,8 @@ export default function HomeScreen() {
         <Pressable style={styles.button} onPress={createTask}>
           <Text style={styles.buttonText}>Add Task</Text>
         </Pressable>
+
+        <Button title="Test update" onPress={onTest} />
       </View>
     </SafeAreaView>
   );
